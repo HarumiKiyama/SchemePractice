@@ -1,0 +1,9 @@
+#+STARTUP: content
+* Scheme_SICP
+SICP assignments solved by Scheme
+* TODO [0/4]Python Assignments
+** TODO Hod
+** TODO maps
+** TODO ants
+** TODO Scheme
+

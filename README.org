@@ -1,9 +1,4 @@
 #+STARTUP: content
 * SICP
 SICP assignments of both Python SICP and Lisp SICP
-* TODO [0/4]Python Assignments
-** TODO Hod
-** TODO maps
-** TODO ants
-** TODO Scheme
 * TODO Lisp Assignments

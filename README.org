@@ -1,4 +1,6 @@
 #+STARTUP: content
+#+TITLE: Scheme Practice
+* The Little Scheme
+Assignments for /*The Little Scheme*/
 * SICP
-SICP assignments of both Python SICP and Lisp SICP
-* TODO Lisp Assignments
+Assignments for /*SICP*/

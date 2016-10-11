@@ -1,6 +1,6 @@
 #! /bin/env guile
 !#
-;; define atom
+;; chapter one
 (define atom?
   (lambda (x)
     (and (not (pair? x)) (not (null? x)))))
@@ -38,18 +38,21 @@
    ((eq? old (car lat)) (cons old (cons new (cdr lat))))
    (else (cons (car lat)
                (insertR old new (cdr lat))))))
+
 (define (insertL new old l)
   (cond
    ((null? l) l)
    ((eq? old (car l)) (cons new l))
    (else (cons (car l)
                (insertL old new (cdr l))))))
+
 (define (subset new old l)
   (cond
    ((null? l) l)
    ((eq? old (car l)) (cons new (cdr l)))
    (else (cons (car l)
                (subset old new (cdr l))))))
+
 (define (subset2 new old1 old2 l)
   (cond
    ((null? l) l)
@@ -57,6 +60,7 @@
         (eq? old2 (car l))) (cons new (cdr l)))
    (else (cons (car l)
                (subset2 new old1 old2 (cdr l))))))
+
 (define (multirember a l)
   (cond
    ((null? l) l)
@@ -64,6 +68,7 @@
           ((eq? a (car l)) (multirember a (cdr l)))
           (else (cons (car l)
                       (multirember a (cdr l))))))))
+
 (define (multiinsertR new old l)
   (cond
    ((null? l) l)
@@ -73,6 +78,7 @@
                                          (multiinsertR new old (cdr l)))))
           (else (cons (car l)
                       (multiinsertR new old (cdr l))))))))
+
 (define (multiinsertL new old l)
   (cond
    ((null? l) l)
@@ -88,7 +94,7 @@
           ((eq? old (car l)) (cons new (multisubset new old (cdr l))))
           (else (cons (car l)
                       (multisubset new old (cdr l))))))))
-
+;; chapter four
 (define (add1 n)
   (+ 1 n))
 
@@ -189,3 +195,16 @@
 
 (define (one? a)
   (= a 1))
+
+;; chapter five
+
+(define (rember* a l)
+  (cond
+   ((null? l) l)
+   ((atom? (car l))
+    (cond
+     ((eqan? (car l) a) (rember* a (cdr l)))
+     (else (cons (car l) (rember* a (cdr l))))))
+   (else
+    (cons (rember* a (car l)) (rember* a (cdr l))) )))
+(rember* 1 '(1 2 (1 2 (1 2 (1)))))

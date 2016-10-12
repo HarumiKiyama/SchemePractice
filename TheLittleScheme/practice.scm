@@ -207,4 +207,88 @@
      (else (cons (car l) (rember* a (cdr l))))))
    (else
     (cons (rember* a (car l)) (rember* a (cdr l))) )))
-(rember* 1 '(1 2 (1 2 (1 2 (1)))))
+
+(define (insertR* old new l)
+  (cond
+   ((null? l) l)
+   ((atom? (car l))
+    (cond
+     ((eqan? (car l) old)
+      (cons old
+            (cons new (insertR* old new (cdr l)))))
+     (else
+      (cons (car l) (insertR* old new (cdr l))))))
+   (else
+    (cons
+     (insertR* old new (car l))
+     (insertR* old new (cdr l))))))
+
+(define (occur* a l)
+  (cond
+   ((null? l) 0)
+   ((atom? (car l))
+    (cond
+     ((eqan? (car l) a)
+      (add1 (occur* a (cdr l))))
+     (else (occur* a (cdr l)))))
+   (else
+    (o+ (occur* a (car l)) (occur* a (cdr l))))))
+
+(define (subset* old new l)
+  (cond
+   ((null? l) l)
+   ((atom? (car l))
+    (cond
+     ((eqan? (car l) old)
+      (cons new
+            (subset* old new (cdr l))))
+     (else (cons (car l)
+                 (subset* old new (cdr l))))))
+   (else
+    (cons (subset* old new (car l))
+          (subset* old new (cdr l))))))
+
+(define (insertL* old new l)
+  (cond
+   ((null? l) l)
+   ((atom? (car l))
+    (cond
+     ((eqan? (car l) old)
+      (cons new
+            (cons old
+                  (insertL* old new (cdr l)))))
+     (else (cons (car l)
+                 (insertL* old new (cdr l))))))
+   (else
+    (cons (insertL* old new (car l))
+          (insertL* old new (cdr l))))))
+
+(define (member* a l)
+  (cond
+   ((null? l) #f)
+   ((atom? (car l))
+    (or (eqan? (car l) a)
+        (member* a (cdr l))))
+   (else
+    (or (member* a (car l))
+        (member* a (cdr l))))))
+
+
+(define (leftmost l)
+  (cond
+   ((atom? (car l)) (car l))
+   (else
+    (leftmost (car l)))))
+
+(define (eqlist? l1 l2)
+  (cond
+   ((and (null? l1) (null? l2)) #t)
+   ((or (null? l1) (null? l2)) #f)
+   ((and (atom? (car l1)) (atom? (car l2)))
+    (and
+     (eqan? (car l1) (car l2))
+     (eqlist? (cdr l1) (cdr l2))))
+   ((or (atom? (car l1)) (atom? (car l2))) #f)
+   (else
+    (and (eqlist? (car l1) (car l2))
+         (eqlist? (cdr l1) (cdr l2))))))

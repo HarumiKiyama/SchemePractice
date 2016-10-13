@@ -292,3 +292,28 @@
    (else
     (and (eqlist? (car l1) (car l2))
          (eqlist? (cdr l1) (cdr l2))))))
+
+
+(define (eqlist2? l1 l2)
+  (cond
+   ((and (null? l1) (null? l2)) #t)
+   ((or (null? l1) (null? l2)) #f)
+   (else
+    (and (equal? (car l1) (car l2))
+         (equal? (cdr l1) (cdr l2))))))
+
+(define (equal? s1 s2)
+  (cond
+   ((and (atom? s1) (atom? s2))
+    (eqan? s1 s2))
+   ((or (atom? s1) (atom? s2)) #f)
+   (else
+    (eqlist2? s1 s2))))
+
+
+(define (numbered? aexp)
+  (cond
+   ((atom? aexp) (number? aexp))
+   (else
+    (and (numbered? (car aexp))
+         (numbered? (car (cdr (cdr aexp))))))))

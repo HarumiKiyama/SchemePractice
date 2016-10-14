@@ -317,3 +317,29 @@
    (else
     (and (numbered? (car aexp))
          (numbered? (car (cdr (cdr aexp))))))))
+
+(define (1st-sub-exp aexp)
+  (car (cdr aexp)))
+
+(define (2nd-sub-exp aexp)
+  (car (cdr (car aexp))))
+
+(define (operator aexp)
+  (car aexp))
+
+(define (value aexp)
+  (cond
+   ((atom? aexp) aexp)
+   (else
+    (cond
+     ((eqan? '+ (operator aexp))
+      (+ (value (1st-sub-exp aexp))
+         (value (2nd-sub-exp aexp))))
+     ((eqan? '* (operator aexp))
+      (* (value (1st-sub-exp aexp))
+         (value (2nd-sub-exp aexp))))
+     (else
+      (expt (value (1st-sub-exp aexp))
+            (value (2nd-sub-exp aexp))))))))
+
+;; chapter seven

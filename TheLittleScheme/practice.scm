@@ -343,3 +343,82 @@
             (value (2nd-sub-exp aexp))))))))
 
 ;; chapter seven
+
+(define (set? l)
+  (cond
+   ((null? l) #t)
+   ((member? (car l) (cdr l)) #f)
+   (else
+    (set? (cdr l)))))
+
+(define (makeset l)
+  (cond
+   ((null? l) l)
+   (else
+    (cons (car l)
+          (makeset (multirember (car l)
+                                (cdr l)))))))
+
+(define (subset? set1 set2)
+  (cond
+   ((null? set1) #t)
+   (else
+    (and (member? (car set1) set2)
+         (subset? (cdr set1) set2)))))
+
+(define (eqset? set1 set2)
+  (and (subset? set1 set2)
+       (subset? set2 set1)))
+
+(define (intersect? set1 set2)
+  (cond
+   ((null? set1) #f)
+   (else
+    (or (member? (car set1) set2)
+         (intersect? (cdr set1) set2)))))
+
+(define (intersect set1 set2)
+  (cond
+   ((null? set1) set1)
+   ((member? (car set1) set2)
+    (cons (car set1) (intersect (cdr set1) set2)))
+   (else
+    (intersect (cdr set1) set2))))
+
+(define (union set1 set2)
+  (cond
+   ((null? set1) set2)
+   ((member? (car set1) set2)
+    (union (cdr set1) set2))
+   (else
+    (cons
+     (car set1)
+     (union (cdr set1) set2)))))
+
+(define (intersectall lset)
+  (cond
+   ((null? (cdr lset)) (car lset))
+   (else
+    (intersect (car lset)
+               (intersectall (cdr lset))))))
+
+(define (a-pair? l)
+  (cond
+   ((atom? l) #f)
+   ((null? l) #f)
+   ((null? (cdr l)) #f)
+   ((null? (cdr (cdr l))) #t)
+   (else #f)))
+
+(define (first l)
+  (car l))
+
+(define (second l)
+  (car (cdr l)))
+
+(define (build s1 s2)
+  (cons s1 (cons s2 '())))
+
+(define (fun? l)
+  (set? (first l)))
+

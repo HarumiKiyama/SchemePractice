@@ -26,7 +26,7 @@
      ((eq? a (car lat)) (cdr lat))
      (else (cons (car lat)
                  (rember a (cdr lat))) ))))
-(define (first l)
+(define (firsts l)
   (cond
    ((null? l) l)
    (else (cons (car (car l))
@@ -420,5 +420,39 @@
   (cons s1 (cons s2 '())))
 
 (define (fun? l)
-  (set? (first l)))
+  (set? (firsts l)))
 
+(define (revrel1 l)
+  (cond
+   ((null? l) l)
+   (else
+    (cons
+     (build (second (car l))
+            (first (car l)))
+     (revrel1 (cdr l))))))
+
+(define (revpair pair)
+  (build (first pair)
+         (second pair)))
+
+(define (revrel2 l)
+  (cond
+   ((null? l) l)
+   (else
+    (cons
+     (revpair (car l))
+     (revrel2 (cdr l))))))
+
+(define (seconds l)
+  (cond
+   ((null? l) l)
+   (else
+    (cons
+     (car (cdr l))
+     (seconds (cdr l))))))
+
+(define (fullfun? fun)
+  (set? (seconds fun)))
+
+
+;; Chapter eight

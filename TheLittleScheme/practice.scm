@@ -456,3 +456,37 @@
 
 
 ;; Chapter eight
+
+(define (rember-f test? a l)
+  (cond
+   ((null? l) l)
+   ((test? a (car l)) (cdr l))
+   (else
+    (cons
+     (car l)
+     (rember-f test? a (cdr l))))))
+
+(define (eq?-c a)
+  (lambda (x)
+    (eq? a x)))
+
+
+(define (multirember-n a l col)
+  (cond
+   ((null? l)
+    (col '() '()))
+   ((eq? (car l) a)
+    (multirember-n a
+                   (cdr l)
+                   (lambda (newl seen)
+                     (col newl
+                          (cons (car l)
+                                seen)))))
+   (else
+    (multirember-n a
+                   (cdr l)
+                   (lambda (newl seen)
+                     (col (cons (car l) newl)
+                          seen))))))
+
+

@@ -558,7 +558,9 @@
       ((null? l) 0)
       (else (add1 (mk-length (cdr l))))))))
 
-;; newer length1
+;; length
+(define (add1 n)
+  (+ n 1))
 
 ((lambda (mk-length)
    (mk-length mk-length))
@@ -569,3 +571,54 @@
       (else (add1
              ((mk-length mk-length)
               (cdr l))))))))
+
+;; newer length
+
+((lambda (mk-length)
+   (mk-length mk-length))
+ (lambda (mk-length)
+   ((lambda (length)
+      (lambda (l)
+        (cond
+         ((null? l) 0)
+         (else
+          (add1 (length (cdr l)))))))
+    (mk-length mk-length))))
+
+;; newest length
+
+((lambda (mk-length)
+   (mk-length mk-length))
+ (lambda (mk-length)
+   ((lambda (length)
+     (lambda (l)
+      (cond
+       ((null? l) 0)
+       (else
+        (add1 (length (cdr l)))))))
+    (lambda (x)
+      ((mk-length mk-length) x)))))
+
+
+;; final length
+
+((lambda (le)
+   ((lambda (mk-length)
+      (mk-length mk-length))
+    (lambda (mk-length)
+      (le (lambda (x)
+            ((mk-length mk-length) x))))))
+ (lambda (length)
+   (lambda (l)
+     (cond
+      ((null? l) 0)
+      (else
+       (add1 (length (cdr l))))))))
+
+;; Y conbinator
+(define Y
+  (lambda (le)
+    ((lambda (f) (f f))
+     (lambda (f)
+       (le (lambda (x)
+             ((f f) x)))))))

@@ -490,3 +490,82 @@
                           seen))))))
 
 
+(define (even? n)
+  (= (* (/ n 2) 2) n))
+
+(define (evens-only* l)
+  (cond
+   ((null? l) l)
+   ((atom? (car l))
+    )))
+
+;; Chapter nine
+
+(define eternity
+  (lambda (x)
+    (eternity x)))
+
+;; length0
+(lambda (l)
+  (cond
+   ((null? l) 0)
+   (else
+    (add1 (eternity (cdr l))))))
+
+;; length1
+(lambda (l)
+  (cond
+   ((null? l) 0)
+   (else
+    (add1 ((lambda (l)
+             (cond
+              ((null? l) 0)
+              (else
+               (add1 (eternity (cdr l))))))
+           (cdr l))))))
+
+;; new length0
+((lambda (length)
+   (lambda (l)
+     (cond
+      ((null? l) 0)
+      (else
+       (add1 (length (cdr l)))))))
+ eternity)
+
+;; new length1
+((lambda (length)
+   (lambda (l)
+     (cond
+      ((null? l) 0)
+      (else
+       (add1 (length (cdr l)))))))
+ ((lambda (length)
+   (lambda (l)
+    (cond
+     ((null? l) 0)
+     (else
+      (add1 (length (cdr l)))))))
+  eternity))
+
+;; newer length0
+
+((lambda (mk-length)
+   (mk-length mk-length))
+ (lambda (mk-length)
+   (lambda (l)
+     (cond
+      ((null? l) 0)
+      (else (add1 (mk-length (cdr l))))))))
+
+;; newer length1
+
+((lambda (mk-length)
+   (mk-length mk-length))
+ (lambda (mk-length)
+   (lambda (l)
+     (cond
+      ((null? l) 0)
+      (else (add1
+             ((mk-length mk-length)
+              (cdr l))))))))

@@ -622,3 +622,33 @@
      (lambda (f)
        (le (lambda (x)
              ((f f) x)))))))
+
+;; Chapter 10
+(define (lookup-in-entry name entry entry-f)
+  (lookup-in-entry-help name (first entry)
+                        (second entry)
+                        entry-f))
+
+(define lookup-in-entry-help
+  (lambda (name names values entry-f)
+    (cond
+     ((null? names) (entry-f name))
+     ((eq? (car names) name)
+      (car values))
+     (else (lookup-in-entry-help name
+                                 (cdr names)
+                                 (cdr values)
+                                 entry-f)))))
+
+(define (extend-table ))
+
+(define (lookup-in-table name table table-f)
+  (cond
+   ((null? table) (table-f name))
+   (else
+    (lookup-in-entry name
+                     (car table)
+                     (lambda (name)
+                       (lookup-in-entry name
+                                        (cdr table)
+                                        table-f))))))

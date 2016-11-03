@@ -640,7 +640,6 @@
                                  (cdr values)
                                  entry-f)))))
 
-(define (extend-table ))
 
 (define (lookup-in-table name table table-f)
   (cond
@@ -652,3 +651,56 @@
                        (lookup-in-entry name
                                         (cdr table)
                                         table-f))))))
+
+(define expression-to-action
+  (lambda (e)
+    (cond
+     ((atom? e) (atom-to-action e))
+     (else
+      (list-to-action e)))))
+
+(define atom-to-action
+  (lambda (e)
+    (cond
+     ((number? e) *const)
+     ((eq? e #t) *const)
+     ((eq? e #f) *const)
+     ((eq? e 'cons) *const)
+     ((eq? e 'car) *const)
+     ((eq? e 'cdr) *const)
+     ((eq? e 'null?) *const)
+     ((eq? e 'eq?) *const)
+     ((eq? e 'atom?) *const)
+     ((eq? e 'zero?) *const)
+     ((eq? e 'add1) *const)
+     ((eq? e 'sub1) *const)
+     ((eq? e 'number?) *const)
+     (else *identifer))))
+
+(define list-to-action
+  (lambda (e)
+    (cond
+     ((atom? (car e))
+      (cond
+       ((eq? (car e) 'quote)
+        *quote)
+       ((eq? (car e) 'lambda)
+        *lambda)
+       ((eq? (car e) 'cond)
+        *cond)
+       (else *application)))
+     (else *application))))
+
+(define value
+  (lambda (e)
+    (meaning e '())))
+
+(define (meaning e table)
+  ((expression-to-action e) e table))
+
+(define (*const e table)
+  (cond
+   ((number? e) e)
+   ((eq? e #t) #t)
+   ((eq? e #f) #f)
+   (else (build (quote primitive) e))))

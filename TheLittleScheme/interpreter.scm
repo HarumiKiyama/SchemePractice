@@ -2,6 +2,14 @@
   (and (not (pair? n))
        (not (null? n))))
 
+(define (add1 n)
+  (+ n 1))
+(define (sub1 n)
+  (- n 1))
+(define (zero? n)
+  (= n 0))
+
+
 (define (else? n)
   (cond
    ((atom? n)
@@ -65,7 +73,21 @@
    (else (list-to-action e))))
                                         ;TODO: COMPLETE THIS FUNCTION
 (define (atom-to-action e)
-  )
+  (cond
+   ((number? e) *const)
+   ((eq? e #t) *const)
+   ((eq? e #f) *const)
+   ((eq? e (quote cons)) *const)
+   ((eq? e (quote car)) *const)
+   ((eq? e (quote cdr)) *const)
+   ((eq? e (quote null?)) *const)
+   ((eq? e (quote eq?)) *const)
+   ((eq? e (quote atom?)) *const)
+   ((eq? e (quote zero?)) *const)
+   ((eq? e (quote add1)) *const)
+   ((eq? e (quote sub1)) *const)
+   ((eq? e (quote number?)) *const)
+   (else *identifier)))
 
 (define (list-to-action l)
   (cond
@@ -106,7 +128,7 @@
   (cond
    ((else? (question-of (car lines)))
     (meaning (answer-of (car lines)) table))
-   ((meaning (question-of (car lines)))
+   ((meaning (question-of (car lines)) table)
     (meaning (answer-of (car lines)) table))
    (else (evcon (cdr lines) table))))
 
@@ -144,3 +166,51 @@
    ((non-primitive? fun)
     (apply-closure
      (second fun) vals))))
+
+
+(define apply-primitive
+  (lambda (name vals)
+    (cond
+     ((eq? name (quote cons))
+      (cons (first vals) (second vals)))
+     ((eq? name (quote car))
+      (car (first vals)))
+     ((eq? name (quote cdr))
+      (cdr (first vals)))
+     ((eq? name (quote null?))
+      (null? (first vals)))
+     ((eq? name (quote eq?))
+      (eq? (first vals)))
+     ((eq? name (quote atom?))
+      (new-atom? (first vals)))
+     ((eq? name (quote zero?))
+      (zero? (first vals)))
+     ((eq? name (quote add1))
+      (add1 (first vals)))
+     ((eq? name (quote sub1))
+      (sub1 (first vals)))
+     ((eq? name (quote number?))
+      (number? (first vals))))))
+
+(define new-atom?
+  (lambda (x)
+    (cond
+     ((atom? x) #t)
+     ((null? x) #f)
+     ((eq? (car x) (quote primitive)) #t)
+     ((eq? (car x) (quote non-primitive)) #t)
+     (else #f))))
+
+(define apply-closure
+  (lambda (closure vals)
+    (meaning (body-of closure)
+             (extend-table (new-entry (formals-of closure)
+                                      vals)
+                           (table-of closure)))))
+
+(define extend-table cons)
+
+(define new-entry build)
+
+
+

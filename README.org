@@ -1,6 +1,6 @@
 #+STARTUP: content
 #+TITLE: Scheme Practice
 * The Little Scheme
-Assignments for /*The Little Scheme*/
+Assignments for *The Little Scheme*
 * SICP
-Assignments for /*SICP*/
+Assignments for *SICP*

@@ -1,0 +1,58 @@
+#+TITLE: SICP Chapter One
+* 1.1
+** 1.11
+#+begin_src scheme
+(define (f n)
+  (if (< n 3)
+      n
+      (+ (f (- n 1))
+         (* 2 (f (- n 2)))
+         (* 3 (f (- n 3))))))
+
+(define (f 'n)
+  (define (f_iter a b c count)
+    (if (= count 0)
+        a
+        (f_iter b c (+ a (* 2 b) (* 3 c))
+                (- count 1))))
+  (f_iter 0 1 2 n))
+(f 12)
+(f' 12)
+#+end_src
+
+#+RESULTS:
+
+** 1.12
+#+begin_src scheme
+(define (pascal r c)
+  (if (or (= c 1) (= r c))
+      1
+      (+ (pascal (- r 1)
+                 (- c 1))
+         (pascal (- r 1)
+                 c)
+         )))
+
+(pascal 3 2)
+#+end_src
+* 1.2
+#+begin_src scheme
+(define (expmod base exp m)
+  (cond ((= exp 0)
+         1)
+        ((even? exp)
+         (remainder (square (expmod base (/ exp 2) m)) m))
+        (else
+          (remainder (* base (expmod base (- exp 1) m)) m))
+        ))
+
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+#+end_src

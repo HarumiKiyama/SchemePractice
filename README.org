@@ -3,4 +3,6 @@
 * The Little Scheme
 Assignments for *The Little Scheme*
 * SICP
-Assignments for *SICP*
+Assignments for *SICP*.
+Note, There are some thing error about /mit-scheme/ under /orgmode/, So I just
+use /guile/ to complete these assignments.

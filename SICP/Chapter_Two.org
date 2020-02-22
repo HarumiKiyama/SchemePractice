@@ -1,4 +1,15 @@
 #+TITLE: SICP Chapter Two
 * 2.1
+** 2.1
 #+begin_src scheme
+(define (make-rat n d)
+  (let* ((positive (or (and (<= n 0) (<= d 0))
+                       (and (>= n 0) (>= d 0))))
+         (g (gcd n d))
+         (a (/ (if positive (abs n) (- (abs n))) g))
+         (b (/ (abs d) g)))
+    (cons a b)))
+(make-rat -4 2)
+(make-rat 2 -4)
+(make-rat -2 -4)
 #+end_src

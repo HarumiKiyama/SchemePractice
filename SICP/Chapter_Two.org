@@ -784,3 +784,117 @@ Fill in the missing expressions in the following definition of
   (let ((cols (transpose n)))
     (map (lambda (x) (dot-product x cols)) m)))
 #+end_src
+** 2.38
+#+begin_src scheme :results output :session fold
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+(define (fold-right op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (fold-right op initial (cdr sequence)))))
+
+(display (fold-right / 1 (list 1 2 3 4)))
+(newline)
+(display (fold-left / 1 (list 1 2 3)))
+(newline)
+(display (fold-right list #nil (list 1 2 3)))
+(newline)
+(display (fold-left list #nil (list 1 2 3)))
+(newline)
+(display (fold-right + 0 '(1 2 3 4 5)))
+(newline)
+(display (fold-right + 0 '(1 2 3 4 5)))
+#+end_src
+
+#+RESULTS:
+: 3/8
+: 1/6
+: (1 (2 (3 #nil)))
+: (((#nil 1) 2) 3)
+: 15
+: 15
+** 2.39
+*Exercise 2.39:* Complete the following definitions of `reverse'
+(*Note Exercise 2-18::) in terms of `fold-right' and `fold-left'
+from *Note Exercise 2-38:::
+
+    (define (reverse sequence)
+    (fold-right (lambda (x y) <??>) nil sequence))
+
+    (define (reverse sequence)
+    (fold-left (lambda (x y) <??>) nil sequence))
+   
+#+begin_src scheme :results output :session fold
+(define (reverse-r sequence)
+  (fold-right (lambda (x y) (append y (list x))) '() sequence))
+
+(define (reverse-l sequence)
+  (fold-left (lambda (x y) (cons y x)) '() sequence))
+
+(display (reverse-r '(1 2 3 4 5 6)))
+(newline)
+(display (reverse-l '(1 2 3 4 5 6)))
+
+#+end_src
+
+#+RESULTS:
+: (6 5 4 3 2 1)
+: (6 5 4 3 2 1)
+** 2.40
+*Exercise 2.40:* Define a procedure `unique-pairs' that, given an
+integer n, generates the sequence of pairs (i,j) with 1 <= j< i <=
+n.  Use `unique-pairs' to simplify the definition of
+`prime-sum-pairs' given above.
+#+begin_src scheme :session flatmap :results output
+(use-modules (srfi srfi-1))
+(define (enumerate-interval beg end)
+  (if (> beg end)
+      '()
+      (cons beg (enumerate-interval (1+ beg) end))))
+
+(define (flatmap proc seq)
+  (fold-right append '() (map proc seq)))
+
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i)
+     (map (lambda (j) (list i j))
+          (enumerate-interval (1+ i) n)))
+   (enumerate-interval 1 (- n 1))))
+
+(display (unique-pairs 5))
+#+end_src
+
+#+RESULTS:
+: ((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5))
+
+** 2.41
+*Exercise 2.41:* Write a procedure to find all ordered triples of distinct
+positive integers i, j, and k less than or equal to a given integer n that sum
+to a given integer s.
+#+begin_src scheme :session flatmap :results raw
+(define (unique-triples n)
+  (flatmap (lambda (i)
+         (flatmap (lambda (j)
+                (map (lambda (k)
+                       (list i j k))
+                     (enumerate-interval 1 (- j 1))))
+              (enumerate-interval 2 (- i 1)))) (enumerate-interval 3 n)))
+
+(define (triples n s)
+  (filter (lambda (i) (= s (+ (car i) (cadr i) (caddr i))))
+          (unique-triples n)))
+
+
+(triples 10 17)
+#+end_src
+
+#+RESULTS:
+((7 6 4) (8 5 4) (8 6 3) (8 7 2) (9 5 3) (9 6 2) (9 7 1) (10 4 3) (10 5 2) (10 6 1))

@@ -1718,5 +1718,18 @@ representation.)
 (encode sample-message tree)
 #+end_src
 ** 2.71
+*Exercise 2.71:* Suppose we have a Huffman tree for an alphabet of
+n symbols, and that the relative frequencies of the symbols are 1,
+2, 4, ..., 2^(n-1).  Sketch the tree for n=5; for n=10.  In such a
+tree (for general n) how may bits are required to encode the most
+frequent symbol?  the least frequent symbol?
+#+begin_comment
+Just 1 bit for the most frequent symbol, (n-1) for the least frequent symbol
+#+end_comment
 ** 2.72
+#+begin_comment
+The order of growth is $\Theta(n \log{n})$
+The order of growth of encoding the most frequent symbols is $\Theta(n)$
+The order of growth of encoding the least frequent symbols is $\Theta(n^2)$
+#+end_comment
 * 2.4

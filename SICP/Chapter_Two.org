@@ -943,6 +943,213 @@ to a given integer s.
 ** 2.43
 [[https://wernerdegroot.wordpress.com/2015/08/01/sicp-exercise-2-43/][other's solution]]
 ** 2.44
+#+begin_src scheme :session painter
+(define (corner-split painter n)
+  (if (= n 0)
+      painter
+      (let* ((up (up-split painter (- n 1)))
+             (right (right-split painter (- n 1)))
+             (top-left (beside up up))
+             (bottom-right (below right right))
+             (corner (corner-split painter (- n 1))))
+        (beside (below painter top-left)
+                (below bottom-right corner)))))
+
+(define (square-limit painter n)
+  (let* ((quarter (corner-split painter n))
+         (half (beside (flip-horiz quarter) quarter)))
+    (below (flip-vert half) half)))
+
+(define (right-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (right-split painter (- n 1))))
+        (beside painter (below smaller smaller)))))
+#+end_src
+*Exercise 2.44:* Define the procedure `up-split' used by
+`corner-split'.  It is similar to `right-split', except that it switches the
+roles of `below' and `beside'.
+#+begin_src scheme :session painter
+(define (up-split painter n)
+  (if (= n 0)
+      painter
+      (let ((upper (up-split painter (1- n))))
+        (below painter (beside painter upper))
+        )))
+#+end_src
+** 2.45
+*Exercise 2.45:* `Right-split' and `up-split' can be expressed as instances
+of a general splitting operation.  Define a procedure `split' with the
+property that evaluating
+    (define right-split (split beside below))
+    (define up-split (split below beside))
+produces procedures `right-split' and `up-split' with the same behaviors as the
+ones already defined.
+#+begin_src scheme
+(define (split f1 f2)
+  (define (helper painter n)
+    (if (= n 0)
+        painter
+        (let ((part (helper painter (1- n))))
+          (f1 painter (f2 painter part))))))
+#+end_src
+
+** 2.46
+*Exercise 2.46:* A two-dimensional vector v running from the origin to a point
+can be represented as a pair consisting of an x-coordinate and a y-coordinate.
+Implement a data abstraction for vectors by giving a constructor `make-vect' and
+corresponding selectors `xcor-vect' and `ycor-vect'.  In terms of your selectors
+and constructor, implement procedures `add-vect', `sub-vect', and `scale-vect'
+that perform the operations vector addition, vector subtraction, and multiplying
+a vector by a scalar:
+    (x_1, y_1) + (x_2, y_2) = (x_1 + x_2, y_1 + y_2)
+    (x_1, y_1) - (x_2, y_2) = (x_1 - x_2, y_1 - y_2)
+    s * (x, y) = (sx, sy)
+#+begin_src scheme :session painter
+(define (make-vect x y)
+  (cons x y))
+
+(define (xcor-vect v)
+  (car v))
+
+(define (ycor-vect v)
+  (cdr v))
+
+(define (add-vect v1 v2)
+  (make-vect (+ (xcor-vect v1) (xcor-vect v2))
+             (+ (ycor-vect v1) (ycor-vect v2))))
+
+(define (sub-vect v1 v2)
+  (make-vect (- (xcor-vect v1) (xcor-vect v2))
+             (- (ycor-vect v1) (ycor-vect v2))))
+
+(define (scale-vect s v)
+  (make-vect (* s (xcor-vect v)) (* s (ycor-vect v))))
+#+end_src
+** 2.48
+*Exercise 2.48:* A directed line segment in the plane can be represented as a
+pair of vectors--the vector running from the origin to the start-point of the
+segment, and the vector running from the origin to the end-point of the segment.
+Use your vector representation from *Note Exercise 2-46:: to define a
+representation for segments with a constructor `make-segment' and selectors
+`start-segment' and `end-segment'.
+#+begin_src scheme :session painter
+(define (make-segment v1 v2)
+  (cons v1 v2))
+
+(define (start-segment s)
+  (car s))
+
+(define (end-segment s)
+  (cdr s))
+#+end_src
+** 2.49
+*Exercise 2.49:* Use `segments->painter' to define the following primitive
+painters:
+    a. The painter that draws the outline of the designated frame.
+    b. The painter that draws an "X" by connecting opposite corners of the
+    frame.
+    c. The painter that draws a diamond shape by connecting the midpoints of the
+    sides of the frame.
+    d. The `wave' painter.
+   
+#+begin_src scheme :session painter
+(define (segments->painter segment-list))
+
+(define (frame-origin frame))
+(define (frame-edge1 frame))
+(define (frame-edge2 frame))
+
+;; TODO: complete this
+(define (frame-outline frame)
+  (let* ((base (make-vect 0 0))
+         (left (frame-edge1 frame))
+         (right (frame-edge2 frame))
+         (top (add-vect left right))
+         (segment1 (make-segment base left))
+         (segment2 (make-segment base right))
+         (segment3 (make-segment top left))
+         (segment4 (make-segment top right)))
+    (segments->painter (list segment1 segment2 segment3 segment4))))
+
+(define (frame-X frame)
+  (let* ((base (make-vect 0 0))
+         (left (frame-edge1 frame))
+         (right (frame-edge2 frame))
+         (top (add-vect left right))
+         (segment1 (make-segment base top))
+         (segment2 (make-segment left right)))
+    (segments->painter (list segment1 segment2))))
+
+(define (frame-diamond frame)
+  (let* ((left (frame-edge1 frame))
+         (right (frame-edge2 frame))
+         (p1 (scale-vect left))
+         (p2 (scale-vect right))
+         (p3 (add-vect p1 right))
+         (p4 (add-vect p2 left))
+         (segment1 (make-segment p1 p2))
+         (segment2 (make-segment p3 p4))
+         (segment3 (make-segment p1 p4))
+         (segment4 (make-segment p2 p 3)))
+    (segments->painter (list segment1 segment2 segment3 segment4))))
+(define (frame-wave frame))
+#+end_src
+** 2.50
+*Exercise 2.50:* Define the transformation `flip-horiz', which flips painters
+horizontally, and transformations that rotate painters counterclockwise by 180
+degrees and 270 degrees.
+#+begin_src scheme :session painter
+(define (transform-painter painter origin corner1 corner2)
+  (lambda (frame)
+    (let ((m (frame-coord-map frame)))
+      (let ((new-origin (m origin)))
+        (painter
+         (make-frame new-origin
+                     (sub-vect (m corner1) new-origin)
+                     (sub-vect (m corner2) new-origin)))))))
+
+(define (flip-horiz painter)
+  (transform-painter painter
+                     (make-vect 1.0 0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+
+(define (flip-rotate180 painter)
+  (transform-painter painter
+                     (make-vect 1.0 1.0)
+                     (make-vect 0.0 1.0)
+                     (make-vect 1.0 0.0)))
+
+(define (flip-rotate270 painter)
+  (transform-painter painter
+                     (make-vect 0.0 1.0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+#+end_src
+** 2.51
+*Exercise 2.51:* Define the `below' operation for painters.
+#+begin_src scheme :session painter
+(define (below painter1 painter2)
+  (let* ((spilt-point (make-vect 0.0 0.5))
+         (paint-down (transform-painter painter1
+                                        (make-vect 0.0)
+                                        split-point
+                                        (make-vect 0.0 1.0)))
+         (paint-up (transform-painter painter2
+                                      split-point
+                                      (make-vect 0.0 0.5)
+                                      (make-vect 1.0 0.0))))
+    (lambda (frame)
+      (paint-up frame)
+      (paint-down frame))))
+#+end_src
+
+#+begin_src scheme :session painter
+(define (below painter1 painter2)
+  (lambda (frame)
+    (flip-rotate90 (beside (flip-rotate270 painter1) (flip-rotate270 painter2)))))
+#+end_src
 * 2.3
 ** 2.54
 #+begin_src scheme
@@ -1338,3 +1545,178 @@ keys.
    (else (lookup k (left-branch tree)))))
 #+end_src
 ** 2.67
+#+begin_src scheme :session haffman
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+
+(define (leaf? object)
+  (eq? (car object) 'leaf))
+
+(define (symbol-leaf x) (cadr x))
+
+(define (weight-leaf x) (caddr x))
+
+(define (make-code-tree left right)
+  (list left
+        right
+        (append (symbols left) (symbols right))
+        (+ (weight left) (weight right))))
+
+(define (left-branch tree) (car tree))
+
+(define (right-branch tree) (cadr tree))
+
+(define (symbols tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+
+(define (weight tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+        '()
+        (let ((next-branch
+               (choose-branch (car bits) current-branch)))
+          (if (leaf? next-branch)
+              (cons (symbol-leaf next-branch)
+                    (decode-1 (cdr bits) tree))
+              (decode-1 (cdr bits) next-branch)))))
+  (decode-1 bits tree))
+
+(define (choose-branch bit branch)
+  (cond ((= bit 0) (left-branch branch))
+        ((= bit 1) (right-branch branch))
+        (else (error "bad bit -- CHOOSE-BRANCH" bit))))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+        ((< (weight x)
+            (weight (car set)))
+         (cons x set))
+        (else
+         (cons (car set)
+               (adjoin-set x (cdr set))))))
+
+(define (make-leaf-set pairs)
+  (if (null? pairs)
+      '()
+      (let ((pair (car pairs)))
+        (adjoin-set (make-leaf (car pair) ; symbol
+                               (cadr pair)) ; frequency
+                    (make-leaf-set (cdr pairs))))))
+#+end_src
+
+*Exercise 2.67:* Define an encoding tree and a sample message:
+#+begin_src scheme :session haffman
+(define sample-tree
+  (make-code-tree (make-leaf 'A 4)
+                  (make-code-tree
+                   (make-leaf 'B 2)
+                   (make-code-tree (make-leaf 'D 1)
+                                   (make-leaf 'C 1)))))
+(define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+#+end_src
+
+Use the `decode' procedure to decode the message, and give the result.
+#+begin_src scheme :session haffman :results raw
+(decode sample-message sample-tree)
+#+end_src
+
+#+RESULTS:
+(A D A B B C A)
+** 2.68
+*Exercise 2.68:* The `encode' procedure takes as arguments a
+message and a tree and produces the list of bits that gives the
+encoded message.
+#+begin_src scheme :session haffman
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
+#+end_src
+
+`Encode-symbol' is a procedure, which you must write, that returns
+the list of bits that encodes a given symbol according to a given
+tree.  You should design `encode-symbol' so that it signals an
+error if the symbol is not in the tree at all.  Test your
+procedure by encoding the result you obtained in *Note Exercise
+2-67:: with the sample tree and seeing whether it is the same as
+the original sample message.
+#+begin_src scheme :session haffman :results raw
+(define (encode-symbol c tree)
+  (if (not (memq c (symbols tree)))
+      (error "not in tree"))
+  (if (leaf? tree)
+      '()
+      (let* ((left (left-branch tree))
+             (right (right-branch tree))
+             (left-symbols (symbols left))
+             (right-symbols (symbols right)))
+        (if (memq c left-symbols)
+            (cons 0 (encode-symbol c left))
+            (cons 1 (encode-symbol c right))))))
+(encode '(A D A B B C A) sample-tree)
+#+end_src
+
+#+RESULTS:
+(0 1 1 0 0 1 0 1 0 1 1 1 0)
+** 2.69
+*Exercise 2.69:* The following procedure takes as its argument a
+list of symbol-frequency pairs (where no symbol appears in more
+than one pair) and generates a Huffman encoding tree according to
+the Huffman algorithm.
+#+begin_src scheme :session haffman
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+#+end_src
+
+#+RESULTS:
+: #<unspecified>
+
+`Make-leaf-set' is the procedure given above that transforms the
+list of pairs into an ordered set of leaves.  `Successive-merge'
+is the procedure you must write, using `make-code-tree' to
+successively merge the smallest-weight elements of the set until
+there is only one element left, which is the desired Huffman tree.
+(This procedure is slightly tricky, but not really complicated.
+If you find yourself designing a complex procedure, then you are
+almost certainly doing something wrong.  You can take significant
+advantage of the fact that we are using an ordered set
+representation.)
+#+begin_src scheme :session haffman
+(define (successive-merge leafs)
+  (if (null? (cdr leafs))
+      (car leafs)
+      (let ((first (car leafs))
+            (second (cadr leafs))
+            (tail (cddr leafs)))
+        (successive-merge (adjoin-set (make-code-tree first second) tail)))))
+
+ (define test-tree (generate-huffman-tree '((A 3) (B 5) (C 6) (D 6))))
+
+ (encode '(A B C D) test-tree)
+#+end_src
+
+** 2.70
+#+begin_src scheme :session haffman
+(define sample-pairs '((A 2) (NA 16) (BOOM 1)
+                       (SHA 3) (GET 2) (YIP 9)
+                       (JOB 2) (WAH 1)))
+
+(define tree (generate-huffman-tree sample-pairs))
+
+(define sample-message '(GET A JOB SHA NA NA NA NA NA NA
+                             NA NA GET A JOB SHA NA NA NA
+                             NA NA NA NA NA WAH YIP YIP YIP
+                             YIP YIP YIP YIP YIP YIP SHA BOOM))
+(encode sample-message tree)
+#+end_src
+** 2.71
+** 2.72
+* 2.4
